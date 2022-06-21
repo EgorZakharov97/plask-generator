@@ -9,13 +9,13 @@ const Publisher = require('./lib/publisher');
 let logger;
 let publisher;
 
-// cron.schedule('0 0 10 * * *', main);
-main()
+cron.schedule('0 0 10 * * *', main);
+// main()
 
 async function main() {
     mongoose.connect(process.env.MONGO);
     logger = require('./lib/logger');
-    let counter = process.argv[2] || 10;
+    let counter = process.argv[2] || 51;
 
     publisher = new Publisher(await getLastPublished());
 
