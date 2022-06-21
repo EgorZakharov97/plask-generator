@@ -1,17 +1,22 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
-const { getNextPage, getTopic, newTopic, savePage, saveLine } = require('./lib/mongoAPI');
+const { getNextPage, getTopic, newTopic, savePage, saveLine, getLastPublished } = require('./lib/mongoAPI');
 const { classifyTopic, getAnswer } = require('./lib/openAI');
 const Media = require('./lib/media');
 const cron = require('node-cron');
+const Publisher = require('./lib/publisher');
 let logger;
+let publisher;
 
-cron.schedule('0 0 10 * * *', main);
+// cron.schedule('0 0 10 * * *', main);
+main()
 
 async function main() {
     mongoose.connect(process.env.MONGO);
     logger = require('./lib/logger');
     let counter = process.argv[2] || 10;
+
+    publisher = new Publisher(await getLastPublished());
 
     while(counter) {
         const res = await processLine();
@@ -31,6 +36,7 @@ async function processLine() {
     nextPage.href = gethref(nextPage.lines[0].text);
     nextPage.title = nextPage.lines[0].text;
     nextPage.topic = topic;
+    nextPage.datePublished = publisher.getNextDate();
 
     if (topicName !== "Business & Finance") {
         logger.info(`New topic is ${topicName}, not interested`);
@@ -56,10 +62,11 @@ async function processLine() {
 
         logger.info(line)
 
-        await saveLine(line, description);
+        await saveLine(line);
     }
 
     Media.end();
+    await savePage(nextPage);
     return true;
 }
 
