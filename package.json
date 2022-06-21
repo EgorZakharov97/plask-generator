@@ -1,0 +1,25 @@
+{
+  "name": "plask-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "mongoose": "^6.4.0",
+    "node-cron": "^3.0.1",
+    "openai": "^3.0.0",
+    "puppeteer": "^14.4.1",
+    "semaphore": "^1.1.0",
+    "uuid": "^8.3.2",
+    "winston": "^3.7.2",
+    "winston-mongo": "^1.1.1",
+    "winston-mongodb": "^5.0.7"
+  }
+}
