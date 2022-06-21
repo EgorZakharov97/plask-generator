@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
+const Line = require('./database/Line');
 const { getNextPage, getTopic, newTopic, savePage, saveLine, getLastPublished } = require('./lib/mongoAPI');
 const { classifyTopic, getAnswer } = require('./lib/openAI');
 const Media = require('./lib/media');
@@ -45,12 +46,12 @@ async function processLine() {
         return false;
     }
 
-    logger.info('Got Business and finance');
+    // logger.info('Got Business and finance');
 
     await Media.init();
     for(let i=0; i<nextPage.lines.length; i++){
         const line = nextPage.lines[i];
-        logger.info(`${line._id}: ${line.text}`);
+        // logger.info(`${line._id}: ${line.text}`);
         const description = await getAnswer(line.text);
 
         const images = await Media.getImages(line.text);
@@ -59,10 +60,18 @@ async function processLine() {
         line.description = description;
         line.images = images;
         line.videos = videos;
+        line.topic = topic;
 
-        logger.info(line)
+        console.log("before")
+        console.log(line)
 
-        await saveLine(line);
+        Line(line).save().then((err, res) => {
+            if (err) console.log(err)
+            if (res) {
+                console.log('after')
+                console.log(res)
+            }
+        })
     }
 
     Media.end();
