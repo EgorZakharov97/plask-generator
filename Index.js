@@ -9,8 +9,8 @@ const Publisher = require('./lib/publisher');
 let logger;
 let publisher;
 
-cron.schedule('0 0 10 * * *', main);
-// main()
+// cron.schedule('0 0 10 * * *', main);
+main()
 
 async function main() {
     mongoose.connect(process.env.MONGO);
