@@ -76,25 +76,19 @@ async function processLine() {
     } catch {logger.error("Failed to generate summary")}
 
     Media.end();
-    await Line(nextPage.lines[0]).save();
 
     for(let i=0; i<nextPage.lines.length; i++){
         const line = nextPage.lines[i];
-        // logger.info(`${line._id}: ${line.text}`);
+        logger.info(`${line._id}: ${line.text}`);
         const description = await getAnswer(line.text);
 
         line.description = description;
         (i==0 && summary) ? line.description += "\n" + summary : "";
         line.topic = topic;
 
-        console.log("before")
-        console.log(line)
-
         Line(line).save().then((err, res) => {
             if (err) console.log(err)
             if (res) {
-                console.log('after')
-                console.log(res)
             }
         })
     }
