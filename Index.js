@@ -70,10 +70,10 @@ async function processLine() {
 
     let summary;
 
-    try {
-        const article = await Media.getArticleByQuestion(nextPage.lines[0].text);
-        summary = await openAI.summarize(article);
-    } catch(e) {logger.error("Failed to generate summary"); console.log(e)}
+    // try {
+    //     const article = await Media.getArticleByQuestion(nextPage.lines[0].text);
+    //     summary = await openAI.summarize(article);
+    // } catch(e) {logger.error("Failed to generate summary"); console.log(e)}
 
     Media.end();
 
