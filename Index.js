@@ -6,6 +6,7 @@ const { classifyTopic, getAnswer } = require('./lib/openAI');
 const Media = require('./lib/media');
 const cron = require('node-cron');
 const Publisher = require('./lib/publisher');
+const openAI = require('./lib/openAI');
 let logger;
 let publisher;
 
@@ -48,18 +49,42 @@ async function processLine() {
 
     // logger.info('Got Business and finance');
 
+    // get media for the first line
     await Media.init();
+
+    try {
+        nextPage.lines[0].images = await Media.getImages(nextPage.lines[0].text);
+    } catch {
+        try {
+            nextPage.lines[0].images = await Media.getImages(nextPage.lines[0].text);
+        } catch {}
+    }
+    
+    try {
+        nextPage.lines[0].videos = await Media.getVideos(nextPage.lines[0].text);
+    } catch {
+        try {
+            nextPage.lines[0].videos = await Media.getVideos(nextPage.lines[0].text);
+        } catch {}
+    }
+
+    let summary;
+
+    try {
+        const article = await Media.getArticleByQuestion(nextPage.lines[0].text);
+        summary = await openAI.summarize(article);
+    } catch {logger.error("Failed to generate summary")}
+
+    Media.end();
+    await Line(nextPage.lines[0]).save();
+
     for(let i=0; i<nextPage.lines.length; i++){
         const line = nextPage.lines[i];
         // logger.info(`${line._id}: ${line.text}`);
         const description = await getAnswer(line.text);
 
-        const images = await Media.getImages(line.text);
-        const videos = await Media.getVideos(line.text);
-
         line.description = description;
-        line.images = images;
-        line.videos = videos;
+        (i==0 && summary) ? line.description += "\n" + summary : "";
         line.topic = topic;
 
         console.log("before")
@@ -74,7 +99,6 @@ async function processLine() {
         })
     }
 
-    Media.end();
     await savePage(nextPage);
     return true;
 }
