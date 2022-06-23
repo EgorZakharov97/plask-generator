@@ -73,7 +73,7 @@ async function processLine() {
     try {
         const article = await Media.getArticleByQuestion(nextPage.lines[0].text);
         summary = await openAI.summarize(article);
-    } catch {logger.error("Failed to generate summary")}
+    } catch(e) {logger.error("Failed to generate summary"); console.log(e)}
 
     Media.end();
 
@@ -86,11 +86,7 @@ async function processLine() {
         (i==0 && summary) ? line.description += "\n" + summary : "";
         line.topic = topic;
 
-        Line(line).save().then((err, res) => {
-            if (err) console.log(err)
-            if (res) {
-            }
-        })
+        Line(line).save();
     }
 
     await savePage(nextPage);
